@@ -32,6 +32,7 @@ var stripReady = false;
 var refreshBlocker = false;
 var minSoundRefreshTimeout = 500; //ms
 
+var USE_BACKPACK_MODE = true;
 
 var analog0 = 0;
 
@@ -41,12 +42,21 @@ board.on("ready", function() {
 	led = new five.Led(13).strobe(1000);
 
 	// setup the node-pixel strip.
-	strip = new pixel.Strip({
-		pin: strip_data_pin,
-		length: strip_length,
-		board: this,
-		controller: "FIRMATA"
-	});
+	if (USE_BACKPACK_MODE) {
+		strip = new pixel.Strip({
+        board: this,
+        controller: "I2CBACKPACK",
+        strips: [strip_length], // 3 physical strips on pins 0, 1 & 2 with lengths 4, 6 & 8.
+    });
+
+	} else{
+		strip = new pixel.Strip({
+			pin: strip_data_pin,
+			length: strip_length,
+			board: this,
+			controller: "FIRMATA"
+		});
+	}
 
 /*	var temp = new five.Sensor({
 		pin: "A0",
