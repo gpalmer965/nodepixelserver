@@ -21,7 +21,7 @@ var io = require('socket.io')(server);
 var strip = null;
 var strip_intervals = [];
 var strip_length = 90;     // number of pixels in the strip.
-var strip_data_pin = 6;
+var strip_data_pin = 6;    // pin connected to data input on the strip
 
 var board = new five.Board();
 
