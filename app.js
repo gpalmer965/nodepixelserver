@@ -224,7 +224,7 @@ board.on("ready", function() {
 							var lum_i = Math.floor(i * strip_length/data.arr.length);
 							var lum = data.arr[lum_i] * 100/255;
 							//lum = lum*lum;
-							showColor = (Color().hsl([hue, sat, lum])).values.rgb;
+							showColor = (Color().hsl(hue, sat, lum)).rgb().color;
 							strip.pixel( i ).color( showColor );
 						}
 						strip.show();
@@ -359,10 +359,10 @@ function Chaser( delay, width, speed ){
 			console.log("HSL");
 			console.log(hue);
 			console.log(level);
-			console.log(Color().hsl([hue, 100, level]));
+			console.log(Color().hsl(hue, 100, level));
 
 
-			strip.pixel(i).color( Color().hsl([hue, 50, level]).values.rgb );
+			strip.pixel(i).color( Color().hsl(hue, 50, level).rgb().color );
 		}
 
 
@@ -394,8 +394,8 @@ function rainbow_fade(delay) { //-FADE ALL LEDS THROUGH HSV RAINBOW
 }
 
 function set_strip_hsl(hue, sat, lum) {
-	var color1 = Color().hsl([hue, sat, lum]);
-	strip.color(color1.values.rgb);
+	var color1 = Color().hsl(hue, sat, lum);
+	strip.color(color1.rgb().color);
 	strip.show();
 }
 
@@ -412,8 +412,8 @@ function random_burst(delay) { //-RANDOM INDEX/COLOR
 		var isat = getRandomInt(25,75);
 		var ilum = getRandomInt(0,75);
 
-		var color1 = Color().hsl([ihue, isat, ilum]);
-		strip.pixel(idex).color(color1.values.rgb);
+		var color1 = Color().hsl(ihue, isat, ilum);
+		strip.pixel(idex).color(color1.rgb().color);
 		strip.show();
 	}, delay);
 	return intervalIndex;
@@ -448,8 +448,8 @@ function flicker(delay) {
 		var random_bool = getRandomInt(0,random_bright);
 
 		if (random_bool < 10) {
-			var color1 = Color().hsl([thishue, thissat, random_bright]);
-			strip.color(color1.values.rgb);
+			var color1 = Color().hsl(thishue, thissat, random_bright);
+			strip.color(color1.rgb().color);
 		}
 		strip.show();
 	}, delay);
@@ -461,8 +461,8 @@ function analog_input_brightness(delay) {
 	var thissat = 100;
 	var intervalIndex = setInterval(function(){
 		var bright = Math.floor(analog0 * 101 / 1024);
-		var color1 = Color().hsl([thishue, thissat, bright]);
-		strip.color(color1.values.rgb);
+		var color1 = Color().hsl(thishue, thissat, bright);
+		strip.color(color1.rgb().color);
 		strip.show();
 	}, delay);
 	return intervalIndex;
@@ -474,10 +474,10 @@ function analog_input_level(delay) {
 	var thisbright = 50;
 	var intervalIndex = setInterval(function(){
 		var pixel_num = Math.floor(analog0 * strip_length / 1024);
-		var color1 = Color().hsl([thishue, thissat, thisbright]);
+		var color1 = Color().hsl(thishue, thissat, thisbright);
 		strip.off();
 		for(var i=0; i<pixel_num; ++i) {
-			strip.pixel(i).color(color1.values.rgb);
+			strip.pixel(i).color(color1.rgb().color);
 		}
 		strip.show();
 	}, delay);
