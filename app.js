@@ -42,7 +42,7 @@ var current_light_pattern = "Off";
 var defaultDelay = 400;
 var stripReady = false;
 var refreshBlocker = false;
-var minSoundRefreshTimeout = 500; //ms
+var minSoundRefreshTimeout = 200; //ms
 
 
 var analog0 = 0;
@@ -94,6 +94,8 @@ board.on("ready", function() {
 		strip.show();
 		console.log('set pixel 10');
 		stripReady=true;
+		SetStripPattern(DynamicRainbow, defaultDelay); //set default initial pattern
+
 
 		// on a socket connection
 		io.on('connection', function (socket) {
@@ -187,7 +189,7 @@ board.on("ready", function() {
 
 
 			socket.on('orientation', function(data) {
-				var orientationRefreshTimeout = 20;
+				var orientationRefreshTimeout = 10;
 				if (!refreshBlocker){
 					if (current_light_pattern != "Device Orientation") {
 						return;
@@ -268,7 +270,7 @@ function SetStripPattern(func, delay) {
 }
 
 function DynamicRainbow( delay ){
-	delay = Math.max(delay, 200);
+	//delay = Math.max(delay, 200);
 	console.log( 'DynamicRainbow, delay: ' + delay);
 
 	var showColor;
@@ -301,7 +303,7 @@ function StaticRainbow( delay ){
 }
 
 function DynamicWaves( delay ){
-	delay = Math.max(delay, 200);
+	//delay = Math.max(delay, 200);
 	console.log( 'DynamicWaves, delay: ' + delay );
 
 	var showColor;
@@ -356,12 +358,7 @@ function Chaser( delay, width, speed ){
 
 			var hue = Math.floor(360 * chaser_offset / width);
 
-			console.log("HSL");
-			console.log(hue);
-			console.log(level);
-			console.log(Color().hsl(hue, 100, level));
-
-
+			
 			strip.pixel(i).color( Color().hsl(hue, 50, level).rgb().color );
 		}
 
@@ -383,11 +380,11 @@ function Chaser( delay, width, speed ){
 function rainbow_fade(delay) { //-FADE ALL LEDS THROUGH HSV RAINBOW
 	var ihue = 0;
 	var intervalIndex = setInterval(function(){
-		console.log(ihue);
+		//console.log(ihue);
 		ihue+=3;
-		console.log(ihue);
+		//console.log(ihue);
 		if (ihue > 359) {ihue = 0;}
-		console.log(ihue);
+		//console.log(ihue);
 		set_strip_hsl(ihue, 100, 50);
 	}, delay);
 	return intervalIndex;
