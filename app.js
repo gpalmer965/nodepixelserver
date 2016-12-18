@@ -46,7 +46,7 @@ board.on("ready", function() {
 		strip = new pixel.Strip({
         board: this,
         controller: "I2CBACKPACK",
-        strips: [strip_length], // 3 physical strips on pins 0, 1 & 2 with lengths 4, 6 & 8.
+				strips: [strip_length]
     });
 
 	} else{
