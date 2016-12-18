@@ -18,12 +18,24 @@ var led = null;
 var Color = require('color');
 var io = require('socket.io')(server);
 
+var USE_BACKPACK_MODE = true;
+
+var board = null;
+if (USE_BACKPACK_MODE) {
+	var raspi = require("raspi-io");
+	var opts = {};
+	opts.io = new raspi();
+	board = new five.Board(opts);
+
+} else {
+	board = new five.Board();
+}
+
 var strip = null;
 var strip_intervals = [];
 var strip_length = 90;     // number of pixels in the strip.
 var strip_data_pin = 6;    // pin connected to data input on the strip
 
-var board = new five.Board();
 
 var light_pattern = ["Off", "Static Rainbow", "Dynamic Rainbow", "Dynamic Waves", "Chaser", "Rainbow Fade", "Random Burst", "Police Lights", "Flicker", "A0 Input Brightness", "A0 Input Level Strip", "Device Orientation", "Sound Volume", "Sound Frequency"];
 var current_light_pattern = "Off";
@@ -32,7 +44,6 @@ var stripReady = false;
 var refreshBlocker = false;
 var minSoundRefreshTimeout = 500; //ms
 
-var USE_BACKPACK_MODE = true;
 
 var analog0 = 0;
 
@@ -46,7 +57,7 @@ board.on("ready", function() {
 		strip = new pixel.Strip({
         board: this,
         controller: "I2CBACKPACK",
-				bus: 2,
+				//bus: 2,
 				strips: [strip_length]
     });
 
