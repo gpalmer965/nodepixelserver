@@ -1,0 +1,36 @@
+# install service:
+# sudo cp nodepixelserver.service /etc/systemd/system/
+# systemctl enable nodepixelserver.service
+
+# start service:
+# systemctl start nodepixelserver.service
+
+# verify service is running:
+# systemctl status nodepixelserver.service
+
+# after making changes to this file:
+# systemctl daemon-reload
+# systemctl restart nodepixelserver.service
+
+[Unit]
+Description=Node.js Node-Pixel Server
+#Requires=After=mysql.service       # Requires the mysql service to run first
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/node /home/pi/share/app.js
+Restart=always
+RestartSec=10                       # Restart service after 10 seconds if node service crashes
+StandardInput=null
+StandardOutput=syslog               # Output to syslog
+StandardError=syslog                # Output to syslog
+#SyslogIdentifier=nodejs-pixel-server
+User=root
+Group=root
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PORT=3000
+Environment=NODE_ENV=production
+WorkingDirectory=/home/pi/share
+
+[Install]
+WantedBy=multi-user.target

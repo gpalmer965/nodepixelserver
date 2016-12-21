@@ -11,12 +11,10 @@
 //
 var express = require('express');
 var app = express();
-var server = require('http').Server(app);
 var five = require("johnny-five");
 var pixel = require('node-pixel');
 var led = null;
 var Color = require('color');
-var io = require('socket.io')(server);
 
 var USE_BACKPACK_MODE = true;
 
@@ -30,6 +28,8 @@ if (USE_BACKPACK_MODE) {
 } else {
 	board = new five.Board();
 }
+board.debug = true;
+board.repl = false;
 
 var strip = null;
 var strip_intervals = [];
@@ -46,6 +46,25 @@ var minSoundRefreshTimeout = 200; //ms
 
 
 var analog0 = 0;
+
+
+
+app.use(express.static('public'));
+app.use(logErrors);
+
+//app.get('/', function(req, res) {
+//	res.sendFile('public/index.html');
+//});
+
+
+var port = process.env.PORT || 3000;
+var server = app.listen(port, function() {
+   console.log("Listening on " + port);
+ });
+
+var io = require('socket.io').listen(server);
+
+
 
 // on board ready
 board.on("ready", function() {
@@ -245,16 +264,12 @@ board.on("ready", function() {
 
 	});
 
+	this.on("exit", function() {
+		console.log("johnny-five exiting");
+	});
 });
 
-server.listen(3000); // not 'app.listen'!
-console.log("listening on 3000");
 
-app.use(express.static(__dirname + '/public'));
-
-app.get('/', function(req, res) {
-	res.sendFile(__dirname + '/public/index.html');
-});
 
 
 
@@ -570,4 +585,10 @@ function arraySum(arr) {
         sum = sum + arr[i];
     }
 	return sum;
+}
+
+
+function logErrors (err, req, res, next) {
+  console.error(err.stack)
+  next(err)
 }
