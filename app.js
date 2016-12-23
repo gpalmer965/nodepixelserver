@@ -500,16 +500,20 @@ function sound_frequency(delay) {
 
 function ColorWaves( delay, width, speed ){
 
-	width = typeof width !== 'undefined' ? width : [5, 10, 15];
-	speed = typeof speed !== 'undefined' ? speed : [5, 3, 1];
+	width = typeof width !== 'undefined' ? width : [2, 3, 5];
+	speed = typeof speed !== 'undefined' ? speed : [3, 0.5, -1];
 
-	console.log( 'Chaser, delay: ' + delay );
+	console.log( 'ColorWaves, delay: ' + delay );
 
 	strip.off();
-
+	
+	var pixelSettings = new Array(strip_length); //keep track of current pixel colorings
+	for (var i=0; i<strip_length; ++i) {
+		pixelSettings[i] = [0,0,0];
+	}
 	var chaser_pos = [9,9,9]; //position index of chaser
 	var intervalIndex = setInterval(function(){
-		console.log(chaser_pos);
+		//console.log(chaser_pos);
 		for (var i=0; i<strip_length; ++i) {
 			var rgb_current_pixel = [0,0,0];
 
@@ -517,11 +521,15 @@ function ColorWaves( delay, width, speed ){
 				var chaser_offset = Math.round(chaser_pos[j] - i);
 				chaser_offset = chaser_offset < 0 ? chaser_offset + strip_length : chaser_offset;
 				if (chaser_offset < width[j]) {
-					var level = Math.floor(255 * chaser_offset / width);
+					var level = 255;
 					rgb_current_pixel[j] = level;
 				}
 			}
-			strip.pixel(i).color( Color().rgb(rgb_current_pixel[0],rgb_current_pixel[1],rgb_current_pixel[2]).rgb().color );
+			if (pixelSettings[i][0] != rgb_current_pixel[0] || pixelSettings[i][1] != rgb_current_pixel[1] || pixelSettings[i][2] != rgb_current_pixel[2]) {
+				//console.log('RGB: ' + rgb_current_pixel);
+				strip.pixel(i).color( rgb_current_pixel );
+				pixelSettings[i] = rgb_current_pixel;
+			}
 		}
 		for (var j=0; j<3; ++j) {
 			chaser_pos[j] += speed[j];
