@@ -40,7 +40,7 @@
       </div>
     </div>
     <div class="col-md-4">
-      <h4>LED Pulse Delay (ms)</h4>
+      <h4>LED Update Delay (ms)</h4>
       <form action="javascript:setLedDelayTime();">
         <p><input type="text" class="form-control" id="ledDelay" name="ledDelay" value="400" /></p>
         <p><button id="ledSet" class="btn-lg btn-primary">Set Delay</button></p>
@@ -49,10 +49,10 @@
     <div class="col-md-4">
       <h4>Set LED Color</h4>
       <form action="javascript:setLedColor();">
-        <p><h4>LED#:</h5><input type="text" class="form-control" id="ledNumber" name="ledNumber" /></p>
-        <p><h4>Red (0-255):</h4><input type="text" class="form-control" id="ledRed" name="ledRed" /></p>
-        <p><h4>Green (0-255):</h4><input type="text" class="form-control" id="ledGreen" name="ledGreen" /></p>
-        <p><h4>Blue (0-255):</h4><input type="text" class="form-control" id="ledBlue" name="ledBlue" /></p>
+        <p><h4>LED# (-1 for entire strip):</h5><input type="text" class="form-control" id="ledNumber" name="ledNumber" value="-1" /></p>
+        <p><h4>Red (0-255):</h4><input type="text" class="form-control" id="ledRed" name="ledRed" value="255" /></p>
+        <p><h4>Green (0-255):</h4><input type="text" class="form-control" id="ledGreen" name="ledGreen" value="255" /></p>
+        <p><h4>Blue (0-255):</h4><input type="text" class="form-control" id="ledBlue" name="ledBlue" value="255" /></p>
         <p><input type="submit" id="submitLedColor" value="Submit" class="btn-primary btn-lg"/></p>
       </form>
     </div>
@@ -64,7 +64,7 @@
       <h4>R <span class="label label-default" id="rLabel">Undefined</span></h4>
       <h4>Angle <span class="label label-default" id="angleLabel">Undefined</span></h4>
       <div class="progress">
-        <div class="progress-bar progress-bar-striped active" role="progressbar" id="xIndicatorBar" 
+        <div class="progress-bar progress-bar-striped active" role="progressbar" id="xIndicatorBar"
           aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
       </div>
     </div>
@@ -73,14 +73,14 @@
       </canvas>
       <div id="FrequencyControl">
         Min Frequency: <input id="minFreqInput" type="range" min="0" max="1024" step="1" value="0" style="height: 20px; width: 200px" onInput="if (freqRange) updateMinFreqRange(event.target.value);"><br>
-        Max Frequency: <input id="maxFreqInput" type="range" min="0" max="1024" step="1" value="1024" style="height: 20px; width: 200px;" 
+        Max Frequency: <input id="maxFreqInput" type="range" min="0" max="1024" step="1" value="1024" style="height: 20px; width: 200px;"
         onInput="if (freqRange) updateMaxFreqRange(event.target.value);">
       </div>
     </div> <!-- /col-md-4 -->
-    
+
   </div>
 </div>
-    
+
 <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -101,19 +101,19 @@ var orientationHandler = function(event) {
   $("#alphaLabel").text(Math.round(event.alpha));
   $("#betaLabel").text(Math.round(event.beta));
   $("#gammaLabel").text(Math.round(event.gamma));
-  
+
   var y = Math.sin(event.beta*Math.PI/180)*Math.cos(event.gamma*Math.PI/180)
 				,x = Math.sin(event.gamma*Math.PI/180)
 				,ang = -Math.atan(x/y) + (y < 0? Math.PI : 0) + Math.PI/2 //from x axis clockwise
 				,r = Math.sqrt(x*x+y*y)
 				;
-        
+
   $("#rLabel").text(r.toFixed(2));
   $("#angleLabel").text(ang.toFixed(2));
 
   $("#xIndicatorBar").css("width", Math.floor(50*ang/Math.PI) + "%");
   $("#xIndicatorBar").css("aria-valuenow", Math.floor(50*ang/Math.PI));
-  
+
   socket.emit('orientation', { alpha:event.alpha, beta:event.beta, gamma:event.gamma, r:r, ang:ang });
 };
 
@@ -127,8 +127,8 @@ var freqDataHandler = function(event) {
   console.log("audio: " + detail.freqRange.min + ":" + detail.dataArray[0]);
   console.log("slice length: " + arrSliced.length);
   console.log(typeof arrSliced);
-  
-  
+
+
   socket.emit('soundData', { arr:arrSliced, freqRange:freqRange });
 }
 
@@ -137,16 +137,16 @@ socket.on('strip_settings_functions', function (data) {
   var func_type_array = data.func_list;
   var div = document.getElementById('light_strip_array_div');
   var ctr = 1;
-  
+
   //remove any previous buttons to avoid duplication
   while (div.firstChild) {
     div.removeChild(div.firstChild);
   }
-  
+
   for (var s in func_type_array) {
     var lbl = document.createElement('label');
     lbl.setAttribute('class', "stripsetbtn btn btn-lg btn-primary");
-    
+
     var btn = document.createElement('input');
     btn.setAttribute('type', 'radio');
     btn.setAttribute('value', func_type_array[s]);
@@ -158,42 +158,32 @@ socket.on('strip_settings_functions', function (data) {
     div.appendChild(lbl);
     ctr++;
   }
-  
+
   $('.stripsetbtn').button();
-  
+
   //$('.stripsetbtn').on('change',function(){
   //  console.log("Setting strip:",$('input[name=stripset]:checked').val());
   //  socket.emit('light_pattern',{pattern:$('input[name=stripset]:checked').val()});
   //});
-  
+
   $('.stripsetbtn').on('click',function(){
     btn_clicked = document.getElementById($(this)[0].getAttribute('for'));
     console.log("Setting strip:",btn_clicked.value);
     socket.emit('light_pattern',{pattern:btn_clicked.value});
   });
-  
+
 });
 
-
-
-
-$('#ledSet').on('click',function(){
-  var tmp = parseInt($('#ledDelay').val(),10);
-  console.log("Setting LED Delay:",tmp);
-  socket.emit('led',{delay:tmp});
-});
-
-$('#ledSetColor').on('click',function(){
-  var tmp = parseInt($('#ledNumber').htmlInner(),10);
-  console.log("Setting LED Delay:",tmp);
-  socket.emit('led',{delay:tmp});
-});
 
 function setLedColor() {
-  var rval = document.getElementById("ledRed").value;
-  var gval = document.getElementById("ledGreen").value;
-  var bval = document.getElementById("ledBlue").value;
-  var lednum = document.getElementById("ledNumber").value;
+  var rval = parseInt(document.getElementById("ledRed").value);
+  var gval = parseInt(document.getElementById("ledGreen").value);
+  var bval = parseInt(document.getElementById("ledBlue").value);
+  var lednum = parseInt(document.getElementById("ledNumber").value);
+  if (isNaN(rval) || isNaN(gval) || isNaN(bval) || isNaN(lednum)) {
+    cosole.log("invalid input on setLedColor");
+    return;
+  }
   rgbstring = "rgb(" + rval + ',' + gval + ',' + bval + ')';
   socket.emit("ledColor", { index:lednum, rgb:rgbstring })
   console.log("led color: " + { index:lednum, rgb:rgbstring });
@@ -202,7 +192,11 @@ function setLedColor() {
 }
 
 function setLedDelayTime() {
-  var dval = document.getElementById("ledDelay").value;
+  var dval = parseInt(document.getElementById("ledDelay").value);
+  if (isNaN(dval)) {
+    cosole.log("invalid input on setLedTime");
+    return;
+  }
   socket.emit("ledDelayTime", { delay:dval })
   console.log("led delay time set: " + { delay:dval });
 }

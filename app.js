@@ -37,7 +37,7 @@ var strip_length = 90;     // number of pixels in the strip.
 var strip_data_pin = 6;    // pin connected to data input on the strip
 
 
-var light_pattern = ["Off", "Static Rainbow", "Dynamic Rainbow", "Dynamic Waves", "Chaser", "Rainbow Fade", "Random Burst", "Police Lights", "Flicker", "A0 Input Brightness", "A0 Input Level Strip", "Device Orientation", "Sound Volume", "Sound Frequency"];
+var light_pattern = ["Off", "Static Rainbow", "Dynamic Rainbow", "Dynamic Waves", "Chaser", "Color Waves", "Rainbow Fade", "Random Burst", "Police Lights", "Flicker", "Device Orientation", "Sound Volume", "Sound Frequency"];
 var current_light_pattern = "Off";
 var defaultDelay = 400;
 var stripReady = false;
@@ -157,6 +157,9 @@ board.on("ready", function() {
 					case "Chaser":
 						SetStripPattern(Chaser, defaultDelay);
 						break;
+					case "Color Waves":
+						SetStripPattern(ColorWaves, defaultDelay);
+						break;
 					case "Rainbow Fade":
 						SetStripPattern(rainbow_fade, defaultDelay);
 						break;
@@ -197,6 +200,8 @@ board.on("ready", function() {
 					if (data.index >= 0 && data.index < strip_length) {
 						strip.pixel(data.index).color(data.rgb);
 						strip.show();
+					} else if (data.index == -1) {
+						strip.color(data.rgb);
 					}
 				}
 			});
@@ -343,7 +348,6 @@ function DynamicWaves( delay ){
 
 function Chaser( delay, width, speed ){
 
-	//default values, these input arrays should be the same length, corresponding to each chaser
 	width = typeof width !== 'undefined' ? width : 5;
 	speed = typeof speed !== 'undefined' ? speed : 1;
 
@@ -355,29 +359,15 @@ function Chaser( delay, width, speed ){
 	console.log(chaser_pos);
 	for (var i=0; i<strip_length; ++i) {
 
-
 		var chaser_offset = Math.round(chaser_pos - i);
 		chaser_offset = chaser_offset < 0 ? chaser_offset + strip_length : chaser_offset;
 
-
 		if (chaser_offset < width) {
-
 			var freq = Math.PI / width;
-
-			/*var level = -0.5*Math.sin(chaser_offset*freq) + 0.5;
-
-			level = level*level;
-			level = Math.floor(level * 100);*/
-
 			var level = 50;
-
 			var hue = Math.floor(360 * chaser_offset / width);
-
-			
 			strip.pixel(i).color( Color().hsl(hue, 50, level).rgb().color );
 		}
-
-
 	}
 	chaser_pos += speed;
 	if (Math.round(chaser_pos) >= strip_length) {
@@ -507,6 +497,45 @@ function sound_volume(delay) {
 function sound_frequency(delay) {
 	return null;
 }
+
+function ColorWaves( delay, width, speed ){
+
+	width = typeof width !== 'undefined' ? width : [5, 10, 15];
+	speed = typeof speed !== 'undefined' ? speed : [5, 3, 1];
+
+	console.log( 'Chaser, delay: ' + delay );
+
+	strip.off();
+
+	var chaser_pos = [9,9,9]; //position index of chaser
+	var intervalIndex = setInterval(function(){
+		console.log(chaser_pos);
+		for (var i=0; i<strip_length; ++i) {
+			var rgb_current_pixel = [0,0,0];
+
+			for (var j=0; j<3; ++j) {
+				var chaser_offset = Math.round(chaser_pos[j] - i);
+				chaser_offset = chaser_offset < 0 ? chaser_offset + strip_length : chaser_offset;
+				if (chaser_offset < width[j]) {
+					var level = Math.floor(255 * chaser_offset / width);
+					rgb_current_pixel[j] = level;
+				}
+			}
+			strip.pixel(i).color( Color().rgb(rgb_current_pixel[0],rgb_current_pixel[1],rgb_current_pixel[2]).rgb().color );
+		}
+		for (var j=0; j<3; ++j) {
+			chaser_pos[j] += speed[j];
+			if (Math.round(chaser_pos[j]) >= strip_length) {
+				chaser_pos[j] -= strip_length;
+			}
+			if (Math.round(chaser_pos[j]) < 0) {
+				chaser_pos[j] += strip_length;
+			}
+		}
+		strip.show();
+	}, delay);
+	return intervalIndex;  //return interval index so it can be stopped later
+};
 
 
 function StopStripIntervals() {
